@@ -33,7 +33,7 @@
             <name>Trifork Nexus Public Repository</name>
             <url>https://nexus.trifork.com/content/groups/public/</url>
         </pluginRepository>
-    </pluginRepositories>     
+    </pluginRepositories>
     <scm>
         <url>scm:git:git@github.com:trifork/sdm4-sksimporter</url>
         <connection>scm:git:git@github.com:trifork/sdm4-sksimporter.git</connection>
@@ -56,8 +56,8 @@
 		<dependency>
 			<groupId>dk.nsi.stamdata4</groupId>
 			<artifactId>sdm-core</artifactId>
-			<version>4.0</version>
-		</dependency>
+            <version>4.1-SNAPSHOT</version>
+        </dependency>
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
@@ -86,7 +86,7 @@
         <dependency>
             <groupId>dk.nsi.stamdata4</groupId>
             <artifactId>testutils</artifactId>
-            <version>4.0</version>
+            <version>4.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

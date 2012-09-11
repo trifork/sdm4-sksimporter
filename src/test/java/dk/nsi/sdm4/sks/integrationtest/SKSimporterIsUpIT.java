@@ -6,6 +6,6 @@ import org.junit.Test;
 public class SKSimporterIsUpIT {
 	@Test
 	public void statusPageReturns200OK() throws Exception {
-		new StatuspageChecker().assertThatStatuspageReturns200OK("sksimporter");
+		new StatuspageChecker("sksimporter").assertThatStatuspageReturns200OK();
 	}
 }
