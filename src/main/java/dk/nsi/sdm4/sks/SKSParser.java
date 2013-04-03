@@ -161,6 +161,7 @@ public class SKSParser implements Parser {
 		SLALogItem slaLogItem = slaLogger.createLogItem("SKSParser", "1");
 		try {
 			Preconditions.checkArgument(files.length == 1, "Only one file should be present at this point.");
+            persister.resetTransactionTime();
 
 			LineIterator lines = null;
 			try {

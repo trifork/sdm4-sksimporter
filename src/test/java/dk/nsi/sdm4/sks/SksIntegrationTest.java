@@ -42,9 +42,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import static org.apache.commons.io.FileUtils.toFile;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -72,6 +76,33 @@ public class SksIntegrationTest
 		assertEquals(622, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM Organisation WHERE Organisationstype = 'Sygehus'"));
 		assertEquals(8451, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM Organisation WHERE Organisationstype = 'Afdeling'"));
 	}
+
+    @Test
+    public void updatesValidToAndModifiedDate() throws IOException, InterruptedException {
+
+        importer.process(datasetDirWith("data/sks/SHAKCOMPLETE.TXT"));
+        Timestamp timestamp = new Timestamp((new Date()).getTime());
+        Timestamp modified1 =
+                jdbcTemplate.queryForObject("SELECT ModifiedDate FROM Organisation LIMIT 1", Timestamp.class);
+
+        // Check no records are invalidated
+        long cntFirstImport = jdbcTemplate.queryForLong("SELECT count(1) FROM Organisation WHERE ValidTo<=?", timestamp);
+
+        // Check no invalid records exist
+
+        Thread.sleep(1000);
+        importer.process(datasetDirWith("data/sks2/SHAKCOMPLETE.TXT"));
+        timestamp = new Timestamp((new Date()).getTime());
+
+        // Check some records have been invalidated
+        long cntSecondImport = jdbcTemplate.queryForLong("SELECT count(1) FROM Organisation WHERE ValidTo<=?", timestamp);
+        assertTrue(cntSecondImport > cntFirstImport);
+
+        // Check modified date has changed
+        Timestamp modified2 = jdbcTemplate.queryForObject(
+                "SELECT ModifiedDate FROM Organisation ORDER BY ModifiedDate DESC LIMIT 1", Timestamp.class);
+        assertFalse(modified1.equals(modified2));
+    }
 
 	private File datasetDirWith(String filename) throws IOException {
 		File datasetDir = tmpDir.newFolder();
