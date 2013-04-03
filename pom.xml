@@ -9,7 +9,7 @@
 
 	<artifactId>sksimporter</artifactId>
 	<packaging>war</packaging>
-	<version>4.3-SNAPSHOT</version>
+	<version>4.3</version>
 
    <distributionManagement>
         <repository>
@@ -38,7 +38,7 @@
         <url>scm:git:git@github.com:trifork/sdm4-sksimporter</url>
         <connection>scm:git:git@github.com:trifork/sdm4-sksimporter.git</connection>
         <developerConnection>scm:git:git@github.com:trifork/sdm4-sksimporter.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>sksimporter-4.3</tag>
   </scm>
     <issueManagement>
         <system>JIRA</system>
