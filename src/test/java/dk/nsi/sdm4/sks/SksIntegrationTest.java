@@ -68,7 +68,7 @@ public class SksIntegrationTest
 	@Test
 	public void canImportTheCorrectNumberOfRecords() throws Throwable
 	{
-		importer.process(datasetDirWith("data/sks/SHAKCOMPLETE.TXT"));
+		importer.process(datasetDirWith("data/sks/SHAKCOMPLETE.TXT"), "");
 		
 		// FIXME: These record counts are only correct iff if duplicate keys are disregarted.
 		// This is unfortunate. Keys are currently only considered based their SKSKode.
@@ -80,7 +80,7 @@ public class SksIntegrationTest
     @Test
     public void updatesValidToAndModifiedDate() throws IOException, InterruptedException {
 
-        importer.process(datasetDirWith("data/sks/SHAKCOMPLETE.TXT"));
+        importer.process(datasetDirWith("data/sks/SHAKCOMPLETE.TXT"), "");
         Timestamp timestamp = new Timestamp((new Date()).getTime());
         Timestamp modified1 =
                 jdbcTemplate.queryForObject("SELECT ModifiedDate FROM Organisation LIMIT 1", Timestamp.class);
@@ -91,7 +91,7 @@ public class SksIntegrationTest
         // Check no invalid records exist
 
         Thread.sleep(1000);
-        importer.process(datasetDirWith("data/sks2/SHAKCOMPLETE.TXT"));
+        importer.process(datasetDirWith("data/sks2/SHAKCOMPLETE.TXT"), "");
         timestamp = new Timestamp((new Date()).getTime());
 
         // Check some records have been invalidated

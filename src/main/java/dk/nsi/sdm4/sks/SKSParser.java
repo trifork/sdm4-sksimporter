@@ -153,22 +153,26 @@ public class SKSParser implements Parser {
 	}
 
 	@Override
-	public void process(File datadir) {
+	public void process(File datadir, String identifier) {
 		Preconditions.checkState(validateInputStructure(datadir), "Input structure is invalid");
 
 		File[] files = datadir.listFiles();
 
-		SLALogItem slaLogItem = slaLogger.createLogItem("SKSParser", "1");
+        SLALogItem slaLogItem = slaLogger.createLogItem(getHome()+".process", "SDM4."+getHome()+".process");
+        slaLogItem.setMessageId(identifier);
+        slaLogItem.addCallParameter(Parser.SLA_INPUT_NAME, datadir.getAbsolutePath());
 		try {
 			Preconditions.checkArgument(files.length == 1, "Only one file should be present at this point.");
             persister.resetTransactionTime();
 
+            long processed = 0;
 			LineIterator lines = null;
 			try {
 				lines = FileUtils.lineIterator(files[0], FILE_ENCODING);
 
 				Dataset<Institution> dataset = innerParse(lines);
 				persister.persistDeltaDataset(dataset);
+                processed += dataset.size();
 			} catch (IOException e) {
 				throw new ParserException(e);
 			} catch (Exception e) {
@@ -177,7 +181,7 @@ public class SKSParser implements Parser {
 			} finally {
 				LineIterator.closeQuietly(lines);
 			}
-
+            slaLogItem.addCallParameter(Parser.SLA_RECORDS_PROCESSED_MAME, ""+processed);
 			slaLogItem.setCallResultOk();
 			slaLogItem.store();
 		} catch (RuntimeException e) {
