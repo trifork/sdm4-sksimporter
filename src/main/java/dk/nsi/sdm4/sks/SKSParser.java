@@ -31,7 +31,6 @@ import dk.nsi.sdm4.core.domain.Dataset;
 import dk.nsi.sdm4.core.parser.Parser;
 import dk.nsi.sdm4.core.parser.ParserException;
 import dk.nsi.sdm4.core.persistence.Persister;
-import dk.nsi.sdm4.sks.Institution;
 import dk.sdsd.nsp.slalog.api.SLALogItem;
 import dk.sdsd.nsp.slalog.api.SLALogger;
 import org.apache.commons.io.FileUtils;
@@ -42,6 +41,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 
 import static dk.nsi.sdm4.sks.Institution.InstitutionType.HOSPITAL;
@@ -241,7 +242,7 @@ public class SKSParser implements Parser {
 			institution.setNummer(line.substring(SKS_CODE_START_INDEX, SKS_CODE_END_INDEX).trim());
 
 			institution.setValidFrom(dateFormat.parseDateTime(line.substring(23, 31)).toDate());
-			institution.setValidTo(dateFormat.parseDateTime(line.substring(39, 47)).toDate());
+			institution.setValidTo(parseValidTo(line));
 
 			institution.setNavn(line.substring(CODE_TEXT_START_INDEX, CODE_TEXT_END_INDEX).trim());
 
@@ -252,4 +253,14 @@ public class SKSParser implements Parser {
 			throw new ParserException("SKS parser encountered an unknown operation code in line " + line + ". code=" + code);
 		}
 	}
+
+    private Date parseValidTo(String line) {
+        // ValidTo is inclusive
+        Date validToInc = dateFormat.parseDateTime(line.substring(39, 47)).toDate();
+        Calendar c = Calendar.getInstance();
+        c.setTime(validToInc);
+        // Add a day because validTo day is inclusive
+        c.add(Calendar.DATE, 1);
+        return c.getTime();
+    }
 }

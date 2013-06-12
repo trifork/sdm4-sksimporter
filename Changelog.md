@@ -8,3 +8,6 @@
 *  Opdateret SDM4 depencencies
 *  SDM-5 SLA-log fra SDM4-importere følger ikke standarden
 *  Tilføjet kopi register view, så kopi register service maps nu bliver oprettet automatisk
+
+## sksimporter 4.5
+*  Rettet: SDMSKSIMP-1 SKS importeren misfortolker slut dato

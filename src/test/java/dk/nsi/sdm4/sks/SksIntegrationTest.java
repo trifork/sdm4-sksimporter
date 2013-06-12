@@ -30,6 +30,9 @@ package dk.nsi.sdm4.sks;
 import dk.nsi.sdm4.sks.config.SksimporterApplicationConfig;
 import dk.nsi.sdm4.testutils.TestDbConfiguration;
 import org.apache.commons.io.FileUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -43,6 +46,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.apache.commons.io.FileUtils.toFile;
@@ -66,8 +71,7 @@ public class SksIntegrationTest
 	SKSParser importer;
 
 	@Test
-	public void canImportTheCorrectNumberOfRecords() throws Throwable
-	{
+	public void canImportTheCorrectNumberOfRecords() throws Throwable {
 		importer.process(datasetDirWith("data/sks/SHAKCOMPLETE.TXT"), "");
 		
 		// FIXME: These record counts are only correct iff if duplicate keys are disregarted.
@@ -76,6 +80,30 @@ public class SksIntegrationTest
 		assertEquals(622, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM Organisation WHERE Organisationstype = 'Sygehus'"));
 		assertEquals(8451, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM Organisation WHERE Organisationstype = 'Afdeling'"));
 	}
+
+    @Test
+    public void validToAndFromInclusive() throws IOException, ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        // Rigshospitalet have the following date specified in input:
+        // Valid from inclusive = 19760401
+        // Valid to inclusive = 25000101
+
+        importer.process(datasetDirWith("data/sks/SHAKCOMPLETE.TXT"), "");
+        Date validTo = jdbcTemplate.queryForObject("SELECT ValidTo FROM Organisation WHERE Navn='Rigshospitalet'", Date.class);
+        Date validFrom = jdbcTemplate.queryForObject("SELECT ValidFrom FROM Organisation WHERE Navn='Rigshospitalet'", Date.class);
+
+
+                                                                //2500-01-02 00:00:00.0
+        Date lastValidTo = formatter.parse("2500-01-01 23:59:58");
+        Date firstInvalidTo = formatter.parse("2500-01-02 00:00:01");
+        assertTrue(validTo.after(lastValidTo));
+        assertTrue(validTo.before(firstInvalidTo));
+
+        Date firstValidFrom = formatter.parse("1976-04-01 00:00:01");
+        Date lastInvalidBefore = formatter.parse("1976-03-31 23:59:58");
+        assertTrue(validFrom.after(lastInvalidBefore));
+        assertTrue(validFrom.before(firstValidFrom));
+    }
 
     @Test
     public void updatesValidToAndModifiedDate() throws IOException, InterruptedException {
